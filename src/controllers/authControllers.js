@@ -37,13 +37,15 @@ export const LoginController = async (req, res) => {
             return
         }
         const sessionExist = await db.query(getSessionExistQuery, [userId])
+        delete userData.rows[0].password
+        delete userData.rows[0].email
         if (sessionExist.rowCount > 0) {
-            res.send({token:sessionExist.rows[0].token})
+            res.send({token:sessionExist.rows[0].token,userData:userData.rows[0]})
             return
         }
         let token = uuid(userId)
         await db.query(loginQuery, [token,userId])
-        res.send({ token })
+        res.send({ token,userData:userData.rows[0]})
     } catch (e) {
         console.log(e)
         res.status(500).send(e.message)
