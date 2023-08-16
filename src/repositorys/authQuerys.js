@@ -1,3 +1,5 @@
+import { db } from "../database/database.connection.js";
+
 export const registerQuery = `INSERT INTO users(email,username,password,"picture")
  values ($1,$2,$3,$4)`
 
