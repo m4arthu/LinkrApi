@@ -3,7 +3,8 @@ import {
     registerQuery,
     getUserDataQuery,
     getSessionExistQuery,
-    loginQuery
+    loginQuery,
+    deleteSessionDB
 } from "../repositorys/authQuerys.js"
 import bcrypt from "bcrypt"
 import { v4 as uuid } from "uuid"
@@ -49,5 +50,15 @@ export const LoginController = async (req, res) => {
     } catch (e) {
         console.log(e)
         res.status(500).send(e.message)
+    }
+}
+
+export async function logOut(req, res) {
+    const { userId } = res.locals;
+    try {
+        await deleteSessionDB(userId);
+        res.sendStatus(204);
+    } catch (error) {
+        res.status(500).send(error.message);
     }
 }
