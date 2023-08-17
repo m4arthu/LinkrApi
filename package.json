@@ -1,7 +1,6 @@
 {
   "name": "linkrapi",
   "version": "1.0.0",
-  "description": "",
   "main": "app.js",
   "type": "module",
   "scripts": {
@@ -20,5 +19,15 @@
     "nodemon": "^3.0.1",
     "pg": "^8.11.2",
     "uuid": "^9.0.0"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/m4arthu/LinkrApi.git"
+  },
+  "keywords": [],
+  "bugs": {
+    "url": "https://github.com/m4arthu/LinkrApi/issues"
+  },
+  "homepage": "https://github.com/m4arthu/LinkrApi#readme",
+  "description": ""
 }
