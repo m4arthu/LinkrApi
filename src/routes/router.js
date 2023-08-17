@@ -1,7 +1,7 @@
 import express from "express";
 import { LoginController,logOut,RegisterController } from "../controllers/authControllers.js";
-import { validateAuth } from "../middleweres/validateAuth.js";
-import{validateSchema }from "../middleweres/validateSchema.js"
+import { validateAuth } from "../middlewares/validateAuth.js";
+import{validateSchema }from "../middlewares/validateSchema.js"
 import {LoginSchema, RegisterSchema} from  "../schemas/authSchemas.js"
 const app = express();
 
