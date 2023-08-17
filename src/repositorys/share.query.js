@@ -6,5 +6,5 @@ export function postMyShare(userId,url,text){
 
 export function selectallshare(){
     return db.query(`SELECT posts.*,users.username,users.picture FROM posts 
-    JOIN users ON posts."userId" = users.id ORDER BY "createdAt" DESC;`)
+    JOIN users ON posts."userId" = users.id ORDER BY "createdAt" DESC LIMIT 20;`)
 }
