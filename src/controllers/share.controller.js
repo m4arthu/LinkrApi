@@ -1,5 +1,4 @@
-import {findSessionDB, registerQuery,} from "../repositorys/authQuerys.js"
-import { postMyShare } from "../repositorys/share.query.js";
+import { postMyShare, selectallshare } from "../repositorys/share.query.js";
 
 export async function SharePublish(req,res){
     const { url, text } = req.body;
@@ -8,6 +7,16 @@ export async function SharePublish(req,res){
     try{
         postMyShare(userId,url,text)
         res.sendStatus(201);
+    }catch(err){
+        res.status(500).send(err.message);
+    }
+    
+}
+
+export async function GetPublish(req,res){
+    try{
+        const litas = (await selectallshare()).rows
+        res.status(200).send(litas);
     }catch(err){
         res.status(500).send(err.message);
     }
