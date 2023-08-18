@@ -1,4 +1,4 @@
-import { getHashtagDB, postMyShare, selectallshare } from "../repositorys/share.query.js";
+import { getHashtagDB, getPostByTrendDB, getPostsInfoDB, postMyShare, selectallshare } from "../repositorys/share.query.js";
 
 export async function SharePublish(req,res){
     const { url, text } = req.body;
@@ -27,6 +27,18 @@ export async function getHashtag(req, res) {
     try {
         const hashtags = await getHashtagDB();
         res.send(hashtags.rows);
+    } catch (error) {
+        res.status(500).send(error.message);
+    }
+}
+
+export async function getPostByTrend(req, res) {
+    const { id } = req.params;
+    try {
+        const postsId = await getPostByTrendDB(id);
+        const postsInfo = await getPostsInfoDB(postsId.rows)
+
+        res.send(postsInfo.rows);
     } catch (error) {
         res.status(500).send(error.message);
     }
