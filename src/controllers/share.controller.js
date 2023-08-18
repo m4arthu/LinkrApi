@@ -1,4 +1,5 @@
-import { getHashtagDB, getPostByTrendDB, getPostsInfoDB, postMyShare, selectallshare } from "../repositorys/share.query.js";
+import { getPostByUserIdDB, getHashtagDB, getPostByTrendDB, getPostsInfoDB, postMyShare, selectallshare } from "../repositorys/share.query.js";
+import { searchUserByIdDB } from "../repositorys/userQuerys.js";
 
 export async function SharePublish(req,res){
     const { url, text } = req.body;
@@ -45,6 +46,20 @@ export async function getPostByTrend(req, res) {
         if (postsId.rows.length == 0) return res.send([]);
         const postsInfo = await getPostsInfoDB(postsId.rows)
         res.send(postsInfo.rows);
+    } catch (error) {
+        res.status(500).send(error.message);
+    }
+}
+
+export async function getPostByUserId(req, res) {
+    const { id } = req.params;
+    try {
+         const postsInfo = await getPostByUserIdDB(id);
+
+         const {username} = (await searchUserByIdDB(id)).rows[0];
+         console.log(username)
+         if (!username) return res.status(404).send(`usuário com o ${id} não existe`)
+        res.send({username , posts: postsInfo.rows});
     } catch (error) {
         res.status(500).send(error.message);
     }

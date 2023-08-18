@@ -5,8 +5,6 @@ export function postMyShare(userId,url,text){
     return {data: response,tamanho:response.rowcount };
 }
 
-
-
 export function selectallshare(){
     return db.query(`SELECT posts.*,users.username,users.picture FROM posts 
     JOIN users ON posts."userId" = users.id ORDER BY "createdAt" DESC LIMIT 20;`)
@@ -20,6 +18,19 @@ export function getPostByTrendDB(id) {
     return db.query(`
     SELECT posts.id FROM posttrend JOIN posts ON posts.id=posttrend."postId" WHERE "trendId" = $1;
     `, [id]);
+}
+
+export function getPostByUserIdDB(id) {
+    return db.query(`
+        SELECT posts.id, users.username, posts.post, COUNT(likes."postId") AS num_likes,
+        json_build_object('trends',array_agg(trends.trend)) AS trends_array, users.picture,
+        posts."articleUrl" FROM posts LEFT JOIN likes ON likes."postId" = posts.id LEFT JOIN
+        posttrend ON posts.id = posttrend."postId" LEFT JOIN trends ON posttrend."trendId" = trends.id
+        JOIN users ON posts."userId" = users.id 
+        WHERE users.id = $1
+        GROUP BY posts.id, users.username, posts.post,
+        posts."articleUrl", users.picture;
+    `, [id])
 }
 
 export function getPostsInfoDB(postsId){
