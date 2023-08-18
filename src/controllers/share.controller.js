@@ -1,4 +1,4 @@
-import { postMyShare, selectallshare } from "../repositorys/share.query.js";
+import { getHashtagDB, postMyShare, selectallshare } from "../repositorys/share.query.js";
 
 export async function SharePublish(req,res){
     const { url, text } = req.body;
@@ -21,4 +21,13 @@ export async function GetPublish(req,res){
         res.status(500).send(err.message);
     }
     
+}
+
+export async function getHashtag(req, res) {
+    try {
+        const hashtags = await getHashtagDB();
+        res.send(hashtags.rows);
+    } catch (error) {
+        res.status(500).send(error.message);
+    }
 }
