@@ -36,8 +36,8 @@ export async function getPostByTrend(req, res) {
     const { id } = req.params;
     try {
         const postsId = await getPostByTrendDB(id);
+        if (postsId.rows.length == 0) return res.send([]);
         const postsInfo = await getPostsInfoDB(postsId.rows)
-
         res.send(postsInfo.rows);
     } catch (error) {
         res.status(500).send(error.message);
