@@ -22,13 +22,13 @@ export function getPostByTrendDB(id) {
 
 export function getPostByUserIdDB(id) {
     return db.query(`
-        SELECT posts.id, users.username, posts.post, COUNT(likes."postId") AS num_likes,
+        SELECT posts.id, users.username, posts."userId", posts.post, COUNT(likes."postId") AS num_likes,
         json_build_object('trends',array_agg(trends.trend)) AS trends_array, users.picture,
         posts."articleUrl" FROM posts LEFT JOIN likes ON likes."postId" = posts.id LEFT JOIN
         posttrend ON posts.id = posttrend."postId" LEFT JOIN trends ON posttrend."trendId" = trends.id
         JOIN users ON posts."userId" = users.id 
         WHERE users.id = $1
-        GROUP BY posts.id, users.username, posts.post,
+        GROUP BY posts.id, users.username, posts.post, posts."userId",
         posts."articleUrl", users.picture;
     `, [id])
 }
@@ -55,4 +55,12 @@ export function getPostsInfoDB(postsId){
         posts."articleUrl", users.picture;
     `
     return db.query(query, listId);
+}
+
+export function updatePostByIdDB(newPost, postId){
+    return db.query(`UPDATE posts SET post=$1 WHERE id=$2;`, [newPost, postId])
+}
+
+export function getPostByIdDB(postId){
+    return db.query(`SELECT * FROM posts WHERE id=$1`, [postId])
 }

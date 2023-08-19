@@ -1,4 +1,5 @@
-import { getPostByUserIdDB, getHashtagDB, getPostByTrendDB, getPostsInfoDB, postMyShare, selectallshare } from "../repositorys/share.query.js";
+import { findSessionDB } from "../repositorys/authQuerys.js";
+import { getPostByUserIdDB, getHashtagDB, getPostByTrendDB, getPostsInfoDB, postMyShare, selectallshare, updatePostByIdDB, getPostByIdDB } from "../repositorys/share.query.js";
 import { searchUserByIdDB } from "../repositorys/userQuerys.js";
 
 export async function SharePublish(req,res){
@@ -57,10 +58,33 @@ export async function getPostByUserId(req, res) {
          const postsInfo = await getPostByUserIdDB(id);
 
          const {username} = (await searchUserByIdDB(id)).rows[0];
-         console.log(username)
          if (!username) return res.status(404).send(`usuário com o ${id} não existe`)
         res.send({username , posts: postsInfo.rows});
     } catch (error) {
         res.status(500).send(error.message);
+    }
+}
+
+export async function updatePostById(req, res){
+    const {id} = req.params;
+    const {newPost} = req.body;
+   /* const {authorization} = req.headers;
+
+    const token = authorization.slice(7);
+*/
+    try{
+        /*const {userId} = (await findSessionDB(token)).rows[0]
+        if (!userId) return res.status(404).send('user is not logged')
+
+        const post = (await getPostByIdDB(id)).rows[0]
+
+        if (post.userId !== userId) return res.sendStatus(401)
+*/
+        await updatePostByIdDB(newPost, id)
+
+        res.sendStatus(200)
+    }   
+    catch{
+        res.sendStatus(500)
     }
 }
