@@ -1,9 +1,29 @@
-import { getLikedPosts, togglePostLike } from '../repositorys/likeQuerys.js'
+import {
+  getLikedPosts,
+  getPostByIdFromDB,
+  togglePostLike
+} from '../repositorys/likeQuerys.js'
 
 export async function likedByUsers(req, res) {
   try {
     const posts = await getLikedPosts()
     res.status(200).send(posts)
+  } catch (err) {
+    res.status(500).send(err.message)
+  }
+}
+
+export async function getPostById(req, res) {
+  const { postId } = req.params
+
+  try {
+    const post = await getPostByIdFromDB(postId)
+
+    if (!post) {
+      return res.status(404).send('Post not found')
+    }
+
+    res.status(200).send(post)
   } catch (err) {
     res.status(500).send(err.message)
   }

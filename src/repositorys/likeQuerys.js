@@ -21,6 +21,28 @@ export async function getLikedPosts() {
   }
 }
 
+export async function getPostByIdFromDB(postId) {
+  try {
+    const query = `
+      SELECT
+        posts.id,
+        posts."userId",
+        COALESCE(COUNT(likes."postId"), 0)::integer AS likes,
+        COALESCE(STRING_AGG(users.username, ','), '') AS "likedByNames"
+      FROM posts
+      LEFT JOIN likes ON posts.id = likes."postId"
+      LEFT JOIN users ON likes."userId" = users.id
+      WHERE posts.id = $1
+      GROUP BY posts.id;
+    `
+
+    const result = await db.query(query, [postId])
+    return result.rows[0]
+  } catch (err) {
+    throw new Error(err.message)
+  }
+}
+
 export async function togglePostLike(userId, postId) {
   try {
     const userAlreadyLiked = await db.query(
