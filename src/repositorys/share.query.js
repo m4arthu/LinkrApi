@@ -1,8 +1,15 @@
 import { db } from "../database/database.connection.js";
 
 export function postMyShare(userId,url,text){
-    const response = db.query(`INSERT INTO posts("userId","articleUrl",post) VALUES ($1,$2,$3);`, [userId,url,text])
-    return {data: response,tamanho:response.rowcount };
+    return db.query(`INSERT INTO posts("userId","articleUrl",post) VALUES ($1,$2,$3);`, [userId,url,text]);
+}
+
+export async function postHashtag(trend){
+    let contagem = (await db.query(`SELECT * FROM posts`)).rowCount;
+
+    await db.query(`INSERT INTO trends (trend) VALUES ($1)`,[trend]);
+    let trendcontagem = (await db.query(`SELECT * FROM trends`)).rowCount;
+    await db.query(`INSERT INTO posttrend ("trendId","postId") VALUES($1,$2)`,[trendcontagem,contagem]);
 }
 
 export function selectallshare(){
