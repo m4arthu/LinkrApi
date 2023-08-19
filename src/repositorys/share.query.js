@@ -13,8 +13,12 @@ export async function postHashtag(trend){
 }
 
 export function selectallshare(){
-    return db.query(`SELECT posts.*,users.username,users.picture FROM posts 
-    JOIN users ON posts."userId" = users.id ORDER BY "createdAt" DESC LIMIT 20;`)
+    return db.query(`SELECT posts.*, users.username,users.picture, COUNT(likes."postId") AS num_likes
+    FROM posts LEFT JOIN likes ON likes."postId" = posts.id 
+    JOIN users ON posts."userId" = users.id
+    GROUP BY posts.id, users.username, posts.post,
+    posts."articleUrl", users.picture
+    ORDER BY "createdAt" DESC LIMIT 20;`)
 }
 
 export function getHashtagDB() {
