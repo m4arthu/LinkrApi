@@ -1,18 +1,25 @@
 import { findSessionDB } from "../repositorys/authQuerys.js";
-import { getPostByUserIdDB, getHashtagDB, getPostByTrendDB, getPostsInfoDB, postMyShare, selectallshare, updatePostByIdDB, getPostByIdDB } from "../repositorys/share.query.js";
+import { getPostByUserIdDB, getHashtagDB, getPostByTrendDB, getPostsInfoDB, postMyShare, selectallshare, updatePostByIdDB, getPostByIdDB , postHashtag } from "../repositorys/share.query.js";
 import { searchUserByIdDB } from "../repositorys/userQuerys.js";
 
 export async function SharePublish(req,res){
     const { url, text } = req.body;
     const { userId } = res.locals;
-    let trends = ''
+    const trends = []
+    const alteracao = text.split(' ');
 
-    if (text.indexOf('#') !== -1){
-        trends = text.slice(text.indexOf('#'))
+    for (let i = 0;i<alteracao.length;i++){
+        if (alteracao[i].indexOf("#")!==-1){
+            trends.push(alteracao[i])
+            continue
+        }
     }
 
     try{
-        postMyShare(userId,url,text).data
+        postMyShare(userId,url,text)
+        for (let j= 0;j<trends.length;j++){
+            await postHashtag(trends[j]);
+        }
         res.sendStatus(201);
     }catch(err){
         res.status(500).send(err.message);

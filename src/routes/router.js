@@ -6,12 +6,14 @@ import{validateSchema }from "../middlewares/validateSchema.js"
 import {LoginSchema, RegisterSchema} from  "../schemas/authSchemas.js"
 import timelineRoute from "./share.routes.js";
 import likeRoute from "./like.routes.js";
+import { pegandolink } from "../controllers/pegameta.js";
 const app = express();
 
 app.post('/login',validateSchema(LoginSchema),LoginController);
 app.post("/register",validateSchema(RegisterSchema),RegisterController);
 app.delete("/logout", validateAuth, logOut);
 app.get("/search/:text", validateAuth, searchUser);
+app.get('/proxy',pegandolink)
 app.use(timelineRoute)
 app.use(likeRoute)
 
