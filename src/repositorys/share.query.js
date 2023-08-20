@@ -45,10 +45,10 @@ export function getPostByUserIdDB(id) {
 }
 
 export function getPostsInfoDB(postsId){
+    console.log(postsId);
     let listId = [];
     let query = `
-        SELECT posts.id, users.username, posts.post, COUNT(likes."postId") AS num_likes,
-        json_build_object('trends',array_agg(trends.trend)) AS trends_array, users.picture,
+        SELECT posts.id, users.username, posts.post, COUNT(likes."postId") AS num_likes, users.picture,
         posts."articleUrl" FROM posts LEFT JOIN likes ON likes."postId" = posts.id LEFT JOIN
         posttrend ON posts.id = posttrend."postId" LEFT JOIN trends ON posttrend."trendId" = trends.id
         JOIN users ON posts."userId" = users.id 
