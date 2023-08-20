@@ -1,5 +1,5 @@
 import { findSessionDB } from "../repositorys/authQuerys.js";
-import { getPostByUserIdDB, getHashtagDB, getPostByTrendDB, getPostsInfoDB, postMyShare, selectallshare, updatePostByIdDB, getPostByIdDB , postHashtag } from "../repositorys/share.query.js";
+import { getPostByUserIdDB, getHashtagDB, getPostByTrendDB, getPostsInfoDB, postMyShare, selectallshare, updatePostByIdDB, getPostByIdDB , postHashtag, deletePostByIdDB } from "../repositorys/share.query.js";
 import { searchUserByIdDB } from "../repositorys/userQuerys.js";
 
 export async function SharePublish(req,res){
@@ -75,21 +75,42 @@ export async function getPostByUserId(req, res) {
 export async function updatePostById(req, res){
     const {id} = req.params;
     const {newPost} = req.body;
-   /* const {authorization} = req.headers;
+    const {authorization} = req.headers;
 
     const token = authorization.slice(7);
-*/
     try{
-        /*const {userId} = (await findSessionDB(token)).rows[0]
+        const {userId} = (await findSessionDB(token)).rows[0]
         if (!userId) return res.status(404).send('user is not logged')
 
         const post = (await getPostByIdDB(id)).rows[0]
 
         if (post.userId !== userId) return res.sendStatus(401)
-*/
+
         await updatePostByIdDB(newPost, id)
 
         res.sendStatus(200)
+    }   
+    catch{
+        res.sendStatus(500)
+    }
+}
+
+export async function deletePostById(req, res){
+    const {id} = req.params;
+    const {authorization} = req.headers;
+
+    const token = authorization.slice(7);
+    try{
+        const {userId} = (await findSessionDB(token)).rows[0]
+        if (!userId) return res.status(404).send('user is not logged')
+
+        const post = (await getPostByIdDB(id)).rows[0]
+
+        if (post.userId !== userId) return res.sendStatus(401)
+
+        await deletePostByIdDB(id)
+
+        res.sendStatus(204)
     }   
     catch{
         res.sendStatus(500)

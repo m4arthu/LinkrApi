@@ -2,6 +2,7 @@ import axios from "axios";
 
 export async function pegandolink(req, res) {
     let url = req.query.url;
+    console.log(url)
 
     if (!url) {
         return res.status(400).json({ error: 'Parâmetro URL ausente' });

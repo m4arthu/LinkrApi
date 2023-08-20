@@ -75,3 +75,7 @@ export function updatePostByIdDB(newPost, postId){
 export function getPostByIdDB(postId){
     return db.query(`SELECT * FROM posts WHERE id=$1`, [postId])
 }
+
+export function deletePostByIdDB(id){
+    return db.query(`DELETE FROM posts WHERE id=$1`, [id])
+}
