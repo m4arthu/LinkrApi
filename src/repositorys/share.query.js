@@ -89,3 +89,43 @@ export function getPostByIdDB(postId){
 export function deletePostByIdDB(id){
     return db.query(`DELETE FROM posts WHERE id=$1`, [id])
 }
+export async function updateHashtag(trend, postId){
+    if (trend.length > 0){
+        let qty = trend ? '($1)' : ''
+        for(let i=2; i<=trend.length ; i++){
+            qty += `,($${i})`
+        }
+    
+        const trendIdArray = (await db.query(`INSERT INTO trends (trend) VALUES ${qty} ON CONFLICT (trend) DO UPDATE SET trend=EXCLUDED.trend RETURNING id;`,trend)).rows;
+        const idArray = []
+        trendIdArray.map(x => {
+            idArray.push(x.id)
+        }) 
+        let qtyPT = qty ? `($1, ${postId})` : ''
+        for(let i=2; i<=trend.length ; i++){
+            qtyPT += `,($${i}, ${postId})`
+        }
+        return db.query(`INSERT INTO posttrend ("trendId","postId") VALUES ${qtyPT};`, idArray);
+    }
+}
+export async function searchPosttrend(postId){
+    return db.query(`
+        SELECT json_build_object('id', trends.id, 'trend', trends.trend) as trends FROM posttrend
+        LEFT JOIN trends ON posttrend."trendId" = trends.id
+        WHERE posttrend."postId" = ${postId}
+        GROUP BY trends.id
+    ;`)
+}
+export async function deletePosttrend(removedTrends, postId){
+    if(removedTrends.length > 0) {
+        let qty = removedTrends.length ? '("trendId"=$1)' : ''
+        for(let i=2; i<=removedTrends.length ; i++){
+        qty += `OR ("trendId"=$${i})`
+    }
+console.log(`DELETE FROM posttrend WHERE ${qty} AND "postId"=${postId};`)
+    return db.query(`DELETE FROM posttrend WHERE ${qty} AND "postId"=${postId};`, removedTrends)
+    }
+    else{
+        return []
+    }    
+}

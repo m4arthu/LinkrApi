@@ -1,5 +1,5 @@
 import { findSessionDB } from "../repositorys/authQuerys.js";
-import { getPostByUserIdDB, getHashtagDB, getPostByTrendDB, getPostsInfoDB, postMyShare, selectallshare, updatePostByIdDB, getPostByIdDB , postHashtag, deletePostByIdDB } from "../repositorys/share.query.js";
+import { getPostByUserIdDB, getHashtagDB, getPostByTrendDB, getPostsInfoDB, postMyShare, selectallshare, updatePostByIdDB, getPostByIdDB , postHashtag, deletePostByIdDB, updateHashtag, searchPosttrend, deletePosttrend } from "../repositorys/share.query.js";
 import { searchUserByIdDB } from "../repositorys/userQuerys.js";
 
 export async function SharePublish(req,res){
@@ -72,21 +72,37 @@ export async function getPostByUserId(req, res) {
 
 export async function updatePostById(req, res){
     const {id} = req.params;
-    const {newPost} = req.body;
+    const {newPost, trends} = req.body;
     const {authorization} = req.headers;
-
     const token = authorization.slice(7);
+    const registeredTrends = []
+    const removedTrends = []
     try{
-        const {userId} = (await findSessionDB(token)).rows[0]
+        const {userId} = (await findSessionDB(token)).rows[0] || ''
+
         if (!userId) return res.status(404).send('user is not logged')
 
-        const post = (await getPostByIdDB(id)).rows[0]
+        const postRegistered = (await getPostByIdDB(id)).rows[0]
 
-        if (post.userId !== userId) return res.sendStatus(401)
+        if (postRegistered.userId !== userId) return res.sendStatus(401)
+        
 
+        const post = (await searchPosttrend(id)).rows
+        post.map(x => {
+            registeredTrends.push(x.trends)
+        }) 
+        registeredTrends.map(x =>{
+            trends.indexOf(x.trend) > -1 ? trends.splice(trends.indexOf(x.trend), 1) : removedTrends.push(x.id)        
+        })
+    
+
+        await deletePosttrend(removedTrends, id)
+        console.log(trends)
+        console.log(removedTrends)
+        await updateHashtag (trends, id)
         await updatePostByIdDB(newPost, id)
 
-        res.sendStatus(200)
+        res.send(trends)
     }   
     catch{
         res.sendStatus(500)
