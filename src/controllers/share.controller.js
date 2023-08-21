@@ -3,23 +3,21 @@ import { getPostByUserIdDB, getHashtagDB, getPostByTrendDB, getPostsInfoDB, post
 import { searchUserByIdDB } from "../repositorys/userQuerys.js";
 
 export async function SharePublish(req,res){
-    const { url, text } = req.body;
+    const { url, text, trends} = req.body;
     const { userId } = res.locals;
-    const trends = []
     const alteracao = text.split(' ');
 
-    for (let i = 0;i<alteracao.length;i++){
+    /*for (let i = 0;i<alteracao.length;i++){
         if (alteracao[i].indexOf("#")!==-1){
             trends.push(alteracao[i])
             continue
         }
     }
-
+    */
     try{
-        postMyShare(userId,url,text)
-        for (let j= 0;j<trends.length;j++){
-            await postHashtag(trends[j]);
-        }
+        const postId = (await postMyShare(userId,url,text)).rows[0]
+
+        await postHashtag(trends, postId.id);
         res.sendStatus(201);
     }catch(err){
         res.status(500).send(err.message);

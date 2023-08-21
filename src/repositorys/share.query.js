@@ -1,15 +1,25 @@
 import { db } from "../database/database.connection.js";
 
 export function postMyShare(userId,url,text){
-    return db.query(`INSERT INTO posts("userId","articleUrl",post) VALUES ($1,$2,$3);`, [userId,url,text]);
+    return db.query(`INSERT INTO posts("userId","articleUrl",post) VALUES ($1,$2,$3) RETURNING id;`, [userId,url,text]);
 }
 
-export async function postHashtag(trend){
-    let contagem = (await db.query(`SELECT * FROM posts`)).rowCount;
-
-    await db.query(`INSERT INTO trends (trend) VALUES ($1)`,[trend]);
-    let trendcontagem = (await db.query(`SELECT * FROM trends`)).rowCount;
-    await db.query(`INSERT INTO posttrend ("trendId","postId") VALUES($1,$2)`,[trendcontagem,contagem]);
+export async function postHashtag(trend, postId){
+    let qty = trend ? '($1)' : ''
+    for(let i=2; i<=trend.length ; i++){
+        qty += `,($${i})`
+    }
+  
+    const trendIdArray = (await db.query(`INSERT INTO trends (trend) VALUES ${qty} ON CONFLICT (trend) DO UPDATE SET trend=EXCLUDED.trend RETURNING id;`,trend)).rows;
+    const idArray = []
+    trendIdArray.map(x => {
+        idArray.push(x.id)
+    }) 
+    let qtyPT = qty ? `($1, ${postId})` : ''
+    for(let i=2; i<=trend.length ; i++){
+        qtyPT += `,($${i}, ${postId})`
+    }
+    return db.query(`INSERT INTO posttrend ("trendId","postId") VALUES ${qtyPT};`, idArray);
 }
 
 export function selectallshare(){
