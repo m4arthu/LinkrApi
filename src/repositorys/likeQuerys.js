@@ -67,3 +67,10 @@ export async function togglePostLike(userId, postId) {
     res.status(500).send(err.message)
   }
 }
+
+export function getUsersLikedDB(id){
+  return db.query(`
+    SELECT likes."userId", users.username FROM likes 
+    JOIN users ON users.id=likes."userId" WHERE "postId"=$1
+  `, [id]);
+}
