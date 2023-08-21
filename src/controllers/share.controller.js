@@ -2,8 +2,8 @@ import { findSessionDB } from "../repositorys/authQuerys.js";
 import { getPostByUserIdDB, getHashtagDB, getPostByTrendDB, getPostsInfoDB, postMyShare, selectallshare, updatePostByIdDB, getPostByIdDB , postHashtag, deletePostByIdDB, updateHashtag, searchPosttrend, deletePosttrend } from "../repositorys/share.query.js";
 import { searchUserByIdDB } from "../repositorys/userQuerys.js";
 
-export async function SharePublish(req,res){
-    const { url, text, trends} = req.body;
+export async function SharePublish(req, res) {
+    const { url, text, trends } = req.body;
     const { userId } = res.locals;
     const alteracao = text.split(' ');
 
@@ -14,26 +14,28 @@ export async function SharePublish(req,res){
         }
     }
     */
-    try{
-        const postId = (await postMyShare(userId,url,text)).rows[0]
-
-        await postHashtag(trends, postId.id);
+    try {
+        const postId = (await postMyShare(userId, url, text)).rows[0]
+        console.log(trends,trends.length)
+        if (trends.length > 0) {
+            await postHashtag(trends, postId.id);
+        }
         res.sendStatus(201);
-    }catch(err){
+    } catch (err) {
         res.status(500).send(err.message);
     }
-    
+
 }
 
-export async function GetPublish(req,res){
+export async function GetPublish(req, res) {
 
-    try{
+    try {
         const litas = (await selectallshare()).rows
         res.status(200).send(litas);
-    }catch(err){
+    } catch (err) {
         res.status(500).send(err.message);
     }
-    
+
 }
 
 export async function getHashtag(req, res) {
@@ -60,11 +62,11 @@ export async function getPostByTrend(req, res) {
 export async function getPostByUserId(req, res) {
     const { id } = req.params;
     try {
-         const postsInfo = await getPostByUserIdDB(id);
+        const postsInfo = await getPostByUserIdDB(id);
 
-         const {username} = (await searchUserByIdDB(id)).rows[0];
-         if (!username) return res.status(404).send(`usuário com o ${id} não existe`)
-        res.send({username , posts: postsInfo.rows});
+        const { username } = (await searchUserByIdDB(id)).rows[0];
+        if (!username) return res.status(404).send(`usuário com o ${id} não existe`)
+        res.send({ username, posts: postsInfo.rows });
     } catch (error) {
         res.status(500).send(error.message);
     }
@@ -102,20 +104,20 @@ export async function updatePostById(req, res){
         await updateHashtag (trends, id)
         await updatePostByIdDB(newPost, id)
 
-        res.send(trends)
-    }   
-    catch{
+        res.sendStatus(200)
+    }
+    catch {
         res.sendStatus(500)
     }
 }
 
-export async function deletePostById(req, res){
-    const {id} = req.params;
-    const {authorization} = req.headers;
+export async function deletePostById(req, res) {
+    const { id } = req.params;
+    const { authorization } = req.headers;
 
     const token = authorization.slice(7);
-    try{
-        const {userId} = (await findSessionDB(token)).rows[0]
+    try {
+        const { userId } = (await findSessionDB(token)).rows[0]
         if (!userId) return res.status(404).send('user is not logged')
 
         const post = (await getPostByIdDB(id)).rows[0]
@@ -125,8 +127,8 @@ export async function deletePostById(req, res){
         await deletePostByIdDB(id)
 
         res.sendStatus(204)
-    }   
-    catch{
+    }
+    catch {
         res.sendStatus(500)
     }
 }
