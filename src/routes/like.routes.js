@@ -2,6 +2,7 @@ import express from 'express'
 import { validateAuth } from '../middlewares/validateAuth.js'
 import {
   getPostById,
+  getUsersLiked,
   likedByUsers,
   postLike,
   postLikeByParams
@@ -14,5 +15,6 @@ likeRoute.get('/like', validateAuth, likedByUsers)
 likeRoute.get('/like/:postId', validateAuth, getPostById)
 likeRoute.post('/postlike', validateSchema(likeSchema), validateAuth, postLike)
 likeRoute.post('/post/:postId', validateAuth, postLikeByParams)
+likeRoute.get('/usersliked/:id', getUsersLiked);
 
 export default likeRoute

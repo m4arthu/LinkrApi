@@ -1,6 +1,7 @@
 import {
   getLikedPosts,
   getPostByIdFromDB,
+  getUsersLikedDB,
   togglePostLike
 } from '../repositorys/likeQuerys.js'
 
@@ -50,5 +51,15 @@ export async function postLikeByParams(req, res) {
     res.status(200).send(message)
   } catch (err) {
     res.status(500).send(err.message)
+  }
+}
+
+export async function getUsersLiked(req, res) {
+  const { id } = req.params;
+  try {
+    const users = await getUsersLikedDB(id);
+    res.send(users.rows);
+  } catch (error) {
+    res.status(500).send(error.message)
   }
 }
