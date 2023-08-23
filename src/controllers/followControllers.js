@@ -1,14 +1,41 @@
-import { checkIfFollowing } from '../repositorys/followQuerys.js'
+import {
+  checkIfFollowing,
+  followUser,
+  unfollowUser
+} from '../repositorys/followQuerys.js'
 
-export default async function checkFollowing(req, res) {
-  const loggedInUserId = parseInt(req.query.loggedInUserId)
-  const profileUserId = parseInt(req.query.profileUserId)
+export async function checkFollowing(req, res) {
+  // const loggedInUserId = parseInt(req.query.loggedInUserId)
+  const { userId } = res.locals
+  const followedId = parseInt(req.query.followedId)
 
-  console.log(loggedInUserId, profileUserId)
+  console.log(userId)
 
-  const isFollowing = await checkIfFollowing(loggedInUserId, profileUserId)
+  const isFollowing = await checkIfFollowing(userId, followedId)
 
   console.log(isFollowing)
 
   res.json({ following: isFollowing })
+}
+
+export async function followUnfollow(req, res) {
+  const { followedUserId } = req.body
+  const followerId = res.locals.userId
+
+  try {
+    const isFollowing = await checkIfFollowing(followerId, followedUserId)
+
+    if (isFollowing) {
+      await unfollowUser(followerId, followedUserId)
+      res.json({ message: 'Você deixou de seguir o usuário.' })
+    } else {
+      await followUser(followerId, followedUserId)
+      res.status(201).json({ message: 'Você começou a seguir o usuário.' })
+    }
+  } catch (error) {
+    console.error(error)
+    res
+      .status(500)
+      .json({ error: 'Ocorreu um erro ao seguir/deixar de seguir o usuário.' })
+  }
 }
