@@ -5,15 +5,15 @@ export async function searchUser(req, res) {
     const { text } = req.params;
     try {
         const users = await searchUserDB(userId,text);
-        const norep = []
-        const userIdSet = new Set(); // Usado para verificar duplicatas
+        const filterUsers = []
+        const userIdSet = new Set();
         users.rows.forEach(user => {
             if (!userIdSet.has(user.id)) {
-            userIdSet.add(user.id); // Adicione o ID do usuário ao conjunto
-            norep.push(user); // Adicione o objeto de usuário ao array norep
+            userIdSet.add(user.id);
+            filterUsers.push(user);
         }
         });
-        res.send(norep);
+        res.send(filterUsers);
     } catch (error) {
         res.status(500).send(error.message);
     }
