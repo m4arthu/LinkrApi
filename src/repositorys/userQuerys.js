@@ -1,9 +1,17 @@
 import { db } from "../database/database.connection.js";
 
-export function searchUserDB(text){
+export function searchUserDB(userId,text){
     return db.query(`
-        SELECT id, username, picture FROM users WHERE username LIKE $1 ORDER BY username
-    `, [`%${text}%`]);
+    SELECT
+    users.id, users.username, users.picture FROM users 
+    LEFT JOIN 
+        "followerRelationships" 
+    ON 
+        "followerRelationships"."followedUserId" = users.id WHERE users.id != $1 AND users.username LIKE $2
+    ORDER BY 
+        CASE WHEN "followerRelationships"."followerId" = $1 THEN 0 ELSE 1 END,
+        users.username;
+    `, [userId,`%${text}%`]);
 }
 
 export function searchUserByIdDB(id){
