@@ -5,15 +5,7 @@ import { searchUserByIdDB } from "../repositorys/userQuerys.js";
 export async function SharePublish(req, res) {
     const { url, text, trends } = req.body;
     const { userId } = res.locals;
-    const alteracao = text.split(' ');
-
-    /*for (let i = 0;i<alteracao.length;i++){
-        if (alteracao[i].indexOf("#")!==-1){
-            trends.push(alteracao[i])
-            continue
-        }
-    }
-    */
+   
     try {
         const postId = (await postMyShare(userId, url, text)).rows[0]
         console.log(trends,trends.length)

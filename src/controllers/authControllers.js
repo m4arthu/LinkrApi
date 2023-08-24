@@ -28,30 +28,21 @@ export const LoginController = async (req, res) => {
   const { email, password } = req.body
   try {
     const userData = await db.query(getUserDataQuery, [email])
-    if (userData.rowCount === 0) {
-      res.status(404).send('email  não  existe!!')
-      return
-    }
+
+    if (userData.rowCount === 0) return res.status(404).send('email  não  existe!!')
     let userId = userData.rows[0].id
-    if (!(await bcrypt.compare(password, userData.rows[0].password))) {
-      res.status(401).send('senha incorreta!!')
-      return
-    }
+    if (!(await bcrypt.compare(password, userData.rows[0].password))) return res.status(401).send('senha incorreta!!')
+    console.log(email)
+
     const sessionExist = await db.query(getSessionExistQuery, [userId])
     delete userData.rows[0].password
     delete userData.rows[0].email
-    if (sessionExist.rowCount > 0) {
-      res.send({
-        token: sessionExist.rows[0].token,
-        userData: userData.rows[0]
-      })
-      return
-    }
+    if (sessionExist.rowCount > 0) return res.send({token: sessionExist.rows[0].token, userData: userData.rows[0]})
+   
     let token = uuid(userId)
     await db.query(loginQuery, [token, userId])
     res.send({ token, userData: userData.rows[0] })
   } catch (e) {
-    console.log(e)
     res.status(500).send(e.message)
   }
 }
