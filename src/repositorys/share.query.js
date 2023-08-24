@@ -22,8 +22,12 @@ export async function postHashtag(trend, postId){
     return db.query(`INSERT INTO posttrend ("trendId","postId") VALUES ${qtyPT};`, idArray);
 }
 
+export function tempost(){
+    return db.query(`SELECT * FROM posts`)
+}
+
 export async function selectallshare(userId){
-    return db.query(`SELECT posts.*, users.username,users.picture, COUNT(likes."postId") AS num_likes
+    const lista = await db.query(`SELECT posts.*, users.username,users.picture, COUNT(likes."postId") AS num_likes
     FROM posts 
 	JOIN "followerRelationships" ON posts."userId"="followerRelationships"."followedUserId" 
 	LEFT JOIN likes ON likes."postId" = posts.id 
@@ -32,6 +36,23 @@ export async function selectallshare(userId){
     GROUP BY posts.id, users.username, posts.post,
     posts."articleUrl", users.picture
     ORDER BY "createdAt" DESC LIMIT 20;`,[userId ])
+
+    if ((lista.rowCount)>0){
+        return lista.rows
+    }
+
+    if ((await db.query('SELECT * FROM posts')).rowCount===0){
+        return 'There are no posts yet'
+    }
+
+    const segue = (await db.query(`SELECT * FROM "followerRelationships" WHERE "followerId"=$1;`,[userId])).rows.length
+    if ( segue === 0){
+        return "You don't follow anyone yet. Search for new friends!"
+    }
+    else{
+        return "No posts found from your friends"
+    }
+
 }
 
 export function getHashtagDB() {
