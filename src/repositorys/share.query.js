@@ -22,13 +22,16 @@ export async function postHashtag(trend, postId){
     return db.query(`INSERT INTO posttrend ("trendId","postId") VALUES ${qtyPT};`, idArray);
 }
 
-export function selectallshare(){
+export async function selectallshare(userId){
     return db.query(`SELECT posts.*, users.username,users.picture, COUNT(likes."postId") AS num_likes
-    FROM posts LEFT JOIN likes ON likes."postId" = posts.id 
+    FROM posts 
+	JOIN "followerRelationships" ON posts."userId"="followerRelationships"."followedUserId" 
+	LEFT JOIN likes ON likes."postId" = posts.id 
     JOIN users ON posts."userId" = users.id
+	WHERE "followerRelationships"."followerId"=$1
     GROUP BY posts.id, users.username, posts.post,
     posts."articleUrl", users.picture
-    ORDER BY "createdAt" DESC LIMIT 20;`)
+    ORDER BY "createdAt" DESC LIMIT 20;`,[userId])
 }
 
 export function getHashtagDB() {

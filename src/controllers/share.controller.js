@@ -28,9 +28,10 @@ export async function SharePublish(req, res) {
 }
 
 export async function GetPublish(req, res) {
+    const { userId } = res.locals;
 
     try {
-        const litas = (await selectallshare()).rows
+        const litas = (await selectallshare(userId)).rows
         res.status(200).send(litas);
     } catch (err) {
         res.status(500).send(err.message);
