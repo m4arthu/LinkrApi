@@ -31,7 +31,7 @@ export async function selectallshare(userId){
 	WHERE "followerRelationships"."followerId"=$1
     GROUP BY posts.id, users.username, posts.post,
     posts."articleUrl", users.picture
-    ORDER BY "createdAt" DESC LIMIT 20;`,[userId])
+    ORDER BY "createdAt" DESC LIMIT 20;`,[userId ])
 }
 
 export function getHashtagDB() {
