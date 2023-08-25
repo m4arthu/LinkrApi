@@ -43,7 +43,7 @@ export async function selectallshare(userId, page){
         SELECT posts.*, users.username,users.picture, COUNT(likes."postId") AS num_likes
         FROM posts JOIN "followerRelationships" ON posts."userId"="followerRelationships"."followedUserId" 
         LEFT JOIN likes ON likes."postId" = posts.id JOIN users ON posts."userId" = users.id WHERE 
-        "followerRelationships"."followerId"=$1 GROUP BY posts.id, users.username, posts.post,
+        "followerRelationships"."followerId"=$1 OR users.id=$1 GROUP BY posts.id, users.username, posts.post,
         posts."articleUrl", users.picture ORDER BY "createdAt" DESC`
     if (page == 'all'){
         lista = await db.query(query,[userId])
