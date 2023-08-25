@@ -21,9 +21,10 @@ export async function SharePublish(req, res) {
 
 export async function GetPublish(req, res) {
     const { userId } = res.locals;
+    const { page } = req.query;
 
     try {
-        const litas = (await selectallshare(userId))
+        const litas = (await selectallshare(userId, page))
         res.status(200).send(litas);
 
     } catch (err) {

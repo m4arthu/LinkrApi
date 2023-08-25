@@ -26,7 +26,7 @@ export function tempost(){
     return db.query(`SELECT * FROM posts`)
 }
 
-export async function selectallshare(userId){
+export async function selectallshare(userId, page){
     const lista = await db.query(`SELECT posts.*, users.username,users.picture, COUNT(likes."postId") AS num_likes
     FROM posts 
 	JOIN "followerRelationships" ON posts."userId"="followerRelationships"."followedUserId" 
@@ -35,7 +35,7 @@ export async function selectallshare(userId){
 	WHERE "followerRelationships"."followerId"=$1
     GROUP BY posts.id, users.username, posts.post,
     posts."articleUrl", users.picture
-    ORDER BY "createdAt" DESC LIMIT 10;`,[userId ])
+    ORDER BY "createdAt" DESC OFFSET $2 LIMIT 10;`,[userId, 10*page])
 
     if ((lista.rowCount)>0){
         return lista.rows
