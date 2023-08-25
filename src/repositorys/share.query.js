@@ -59,13 +59,14 @@ export function getHashtagDB() {
     return db.query(`SELECT id, trend FROM trends ORDER BY trend;`);
 }
 
-export function getPostByTrendDB(id) {
+export function getPostByTrendDB(id,page) {
     return db.query(`
-    SELECT posts.id FROM posttrend JOIN posts ON posts.id=posttrend."postId" WHERE "trendId" = $1;
-    `, [id]);
+        SELECT posts.id FROM posttrend JOIN posts ON posts.id=posttrend."postId"
+        WHERE "trendId" = $1 OFFSET $2 LIMIT 10;
+    `, [id, page*10]);
 }
 
-export function getPostByUserIdDB(id) {
+export function getPostByUserIdDB(id, page) {
     return db.query(`
         SELECT posts.id, users.username, posts."userId", posts.post, COUNT(likes."postId") AS num_likes,
         json_build_object('trends',array_agg(trends.trend)) AS trends_array, users.picture,
@@ -74,8 +75,8 @@ export function getPostByUserIdDB(id) {
         JOIN users ON posts."userId" = users.id 
         WHERE users.id = $1
         GROUP BY posts.id, users.username, posts.post, posts."userId",
-        posts."articleUrl", users.picture;
-    `, [id])
+        posts."articleUrl", users.picture OFFSET $2 LIMIT 10;
+    `, [id, page*10])
 }
 
 export function getPostsInfoDB(postsId){

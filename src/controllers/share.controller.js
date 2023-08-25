@@ -43,8 +43,9 @@ export async function getHashtag(req, res) {
 
 export async function getPostByTrend(req, res) {
     const { id } = req.params;
+    const { page } = req.query;
     try {
-        const postsId = await getPostByTrendDB(id);
+        const postsId = await getPostByTrendDB(id, page);
         if (postsId.rows.length == 0) return res.send([]);
         const postsInfo = await getPostsInfoDB(postsId.rows)
         res.send(postsInfo.rows);
@@ -55,8 +56,9 @@ export async function getPostByTrend(req, res) {
 
 export async function getPostByUserId(req, res) {
     const { id } = req.params;
+    const { page } = req.query;
     try {
-        const postsInfo = await getPostByUserIdDB(id);
+        const postsInfo = await getPostByUserIdDB(id,page);
 
         const { username } = (await searchUserByIdDB(id)).rows[0];
         if (!username) return res.status(404).send(`usuário com o ${id} não existe`)
