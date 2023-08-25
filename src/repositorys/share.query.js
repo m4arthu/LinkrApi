@@ -4,6 +4,15 @@ export function postMyShare(userId, url, text) {
     return db.query(`INSERT INTO posts("userId","articleUrl",post) VALUES ($1,$2,$3) RETURNING id;`, [userId, url, text]);
 }
 
+export async function repostMyShare(userId, id) {
+    const reponse = (await db.query(`SELECT "articleUrl",post FROM posts WHERE id=$1`,[id])).rows[0]
+    if (reponse.length ===0) return 0
+
+    const {articleUrl,post} = reponse
+    console.log(articleUrl,post)
+    return db.query(`INSERT INTO posts("userId","articleUrl",post) VALUES ($1,$2,$3) RETURNING id;`, [userId, articleUrl, post]);
+}
+
 export async function postHashtag(trend, postId) {
     let qty = trend ? '($1)' : ''
     for (let i = 2; i <= trend.length; i++) {

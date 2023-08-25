@@ -1,5 +1,5 @@
 import { findSessionDB } from "../repositorys/authQuerys.js";
-import { getPostByUserIdDB, getHashtagDB, getPostByTrendDB, getPostsInfoDB, postMyShare, selectallshare, updatePostByIdDB, getPostByIdDB, postHashtag, deletePostByIdDB, updateHashtag, searchPosttrend, deletePosttrend, tempost } from "../repositorys/share.query.js";
+import { getPostByUserIdDB, getHashtagDB, getPostByTrendDB, getPostsInfoDB, postMyShare, selectallshare, updatePostByIdDB, getPostByIdDB, postHashtag, deletePostByIdDB, updateHashtag, searchPosttrend, deletePosttrend, tempost, repostMyShare } from "../repositorys/share.query.js";
 import { searchUserByIdDB } from "../repositorys/userQuerys.js";
 
 export async function SharePublish(req, res) {
@@ -17,6 +17,21 @@ export async function SharePublish(req, res) {
         res.status(500).send(err.message);
     }
 
+}
+
+export async function ShareRepost(req,res){
+    const { userId } = res.locals;
+    const {id} = req.params
+   
+    try {
+        const postId = (await repostMyShare(userId,id))
+
+        if (postId===0) return res.sendStatus(404)
+        
+        res.sendStatus(201);
+    } catch (err) {
+        res.status(500).send(err.message);
+    }
 }
 
 export async function GetPublish(req, res) {
