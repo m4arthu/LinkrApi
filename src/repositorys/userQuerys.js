@@ -14,3 +14,11 @@ export function searchUserByIdDB(id){
         SELECT username FROM users WHERE id=$1
         `, [id]);
 }
+
+export function searchUserByTokenDB(token){
+    return db.query(`
+        SELECT users.* FROM sessions 
+        JOIN users ON sessions."userId" = users.id
+        WHERE sessions.token = $1;
+    `, [token])
+}

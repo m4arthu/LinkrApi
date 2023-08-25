@@ -1,6 +1,7 @@
 import {
   checkIfFollowing,
   followUser,
+  getFollowingDB,
   unfollowUser
 } from '../repositorys/followQuerys.js'
 
@@ -9,13 +10,14 @@ export async function checkFollowing(req, res) {
   const { userId } = res.locals
   const followedId = parseInt(req.query.followedId)
 
-  console.log(userId)
+  try{
+    const isFollowing = await checkIfFollowing(userId, followedId)
 
-  const isFollowing = await checkIfFollowing(userId, followedId)
-
-  console.log(isFollowing)
-
-  res.json({ following: isFollowing })
+    res.json({ following: isFollowing })
+  } 
+  catch{
+    res.sendStatus(500)
+  }
 }
 
 export async function followUnfollow(req, res) {
@@ -37,5 +39,17 @@ export async function followUnfollow(req, res) {
     res
       .status(500)
       .json({ error: 'Ocorreu um erro ao seguir/deixar de seguir o usuário.' })
+  }
+}
+
+export async function getFollowing (req, res) {
+  const { userId } = res.locals;
+  try{
+    const followingArray = (await getFollowingDB(userId)).rows
+
+    res.send(followingArray)
+  }
+  catch{
+    res.sendStatus(500)
   }
 }

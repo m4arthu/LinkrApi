@@ -12,6 +12,7 @@ import timelineRoute from './share.routes.js'
 import likeRoute from './like.routes.js'
 import { pegandolink } from '../controllers/pegameta.js'
 import followRoute from './follow.routes.js'
+import commentRouter from './comment.router.js'
 const app = express()
 
 app.post('/login', validateSchema(LoginSchema), LoginController)
@@ -19,6 +20,7 @@ app.post('/register', validateSchema(RegisterSchema), RegisterController)
 app.delete('/logout', validateAuth, logOut)
 app.get('/search/:text', validateAuth, searchUser)
 app.get('/proxy', pegandolink)
+app.use(commentRouter)
 app.use(timelineRoute)
 app.use(likeRoute)
 app.use(followRoute)

@@ -36,3 +36,10 @@ export async function unfollowUser(followerId, followedUserId) {
     throw new Error('Erro ao deixar de seguir o usuário.')
   }
 }
+
+export async function getFollowingDB(userId) {
+  return db.query(`
+    SELECT "followedUserId" AS id 
+    FROM "followerRelationships" 
+    WHERE "followerId" = $1`, [userId])
+}
