@@ -4,7 +4,18 @@ export function postMyShare(userId,url,text){
     return db.query(`INSERT INTO posts("userId","articleUrl",post) VALUES ($1,$2,$3) RETURNING id;`, [userId,url,text]);
 }
 
+
+export async function repostMyShare(userId, id) {
+    const reponse = (await db.query(`SELECT "articleUrl",post FROM posts WHERE id=$1`,[id])).rows[0]
+    if (reponse.length ===0) return 0
+
+    const {articleUrl,post} = reponse
+    console.log(articleUrl,post)
+    return db.query(`INSERT INTO posts("userId","articleUrl",post) VALUES ($1,$2,$3) RETURNING id;`, [userId, articleUrl, post]);
+}
+
 export async function postHashtag(trend, postId){
+
     let qty = trend ? '($1)' : ''
     for(let i=2; i<=trend.length ; i++){
         qty += `,($${i})`
@@ -26,17 +37,19 @@ export function tempost(){
     return db.query(`SELECT * FROM posts`)
 }
 
-export async function selectallshare(userId){
-    const lista = await db.query(`SELECT posts.*, users.username,users.picture, COUNT(likes."postId") AS num_likes
-    FROM posts 
-	JOIN "followerRelationships" ON posts."userId"="followerRelationships"."followedUserId" 
-	LEFT JOIN likes ON likes."postId" = posts.id 
-    JOIN users ON posts."userId" = users.id
-	WHERE "followerRelationships"."followerId"=$1
-    GROUP BY posts.id, users.username, posts.post,
-    posts."articleUrl", users.picture
-    ORDER BY "createdAt" DESC;`,[userId ])
-
+export async function selectallshare(userId, page){
+    let lista;
+    let query = `
+        SELECT posts.*, users.username,users.picture, COUNT(likes."postId") AS num_likes
+        FROM posts JOIN "followerRelationships" ON posts."userId"="followerRelationships"."followedUserId" 
+        LEFT JOIN likes ON likes."postId" = posts.id JOIN users ON posts."userId" = users.id WHERE 
+        "followerRelationships"."followerId"=$1 OR users.id=$1 GROUP BY posts.id, users.username, posts.post,
+        posts."articleUrl", users.picture ORDER BY "createdAt" DESC`
+    if (page == 'all'){
+        lista = await db.query(query,[userId])
+    }else{
+        lista = await db.query(`${query} OFFSET $2 LIMIT 10;`,[userId, 10*page])
+    }
     if ((lista.rowCount)>0){
         return lista.rows
     }
@@ -59,13 +72,14 @@ export function getHashtagDB() {
     return db.query(`SELECT id, trend FROM trends ORDER BY trend;`);
 }
 
-export function getPostByTrendDB(id) {
+export function getPostByTrendDB(id,page) {
     return db.query(`
-    SELECT posts.id FROM posttrend JOIN posts ON posts.id=posttrend."postId" WHERE "trendId" = $1;
-    `, [id]);
+        SELECT posts.id FROM posttrend JOIN posts ON posts.id=posttrend."postId"
+        WHERE "trendId" = $1 OFFSET $2 LIMIT 10;
+    `, [id, page*10]);
 }
 
-export function getPostByUserIdDB(id) {
+export function getPostByUserIdDB(id, page) {
     return db.query(`
         SELECT posts.id, users.username, posts."userId", posts.post, COUNT(likes."postId") AS num_likes,
         json_build_object('trends',array_agg(trends.trend)) AS trends_array, users.picture,
@@ -74,8 +88,8 @@ export function getPostByUserIdDB(id) {
         JOIN users ON posts."userId" = users.id 
         WHERE users.id = $1
         GROUP BY posts.id, users.username, posts.post, posts."userId",
-        posts."articleUrl", users.picture;
-    `, [id])
+        posts."articleUrl", users.picture OFFSET $2 LIMIT 10;
+    `, [id, page*10])
 }
 
 export function getPostsInfoDB(postsId){

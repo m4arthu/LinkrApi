@@ -15,5 +15,4 @@ timelineRoute.patch('/post/:id', updatePostById);
 timelineRoute.delete('/post/:id', deletePostById);
 
 
-
 export default timelineRoute
