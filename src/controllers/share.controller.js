@@ -1,5 +1,5 @@
 import { findSessionDB } from "../repositorys/authQuerys.js";
-import { getPostByUserIdDB, getHashtagDB, getPostByTrendDB, getPostsInfoDB, postMyShare, selectallshare, updatePostByIdDB, getPostByIdDB, postHashtag, deletePostByIdDB, updateHashtag, searchPosttrend, deletePosttrend, tempost } from "../repositorys/share.query.js";
+import { getPostByUserIdDB, getHashtagDB, getPostByTrendDB, getPostsInfoDB, postMyShare, selectallshare, updatePostByIdDB, getPostByIdDB, postHashtag, deletePostByIdDB, updateHashtag, searchPosttrend, deletePosttrend, tempost, repostDB } from "../repositorys/share.query.js";
 import { searchUserByIdDB } from "../repositorys/userQuerys.js";
 
 export async function SharePublish(req, res) {
@@ -123,6 +123,29 @@ export async function deletePostById(req, res) {
         res.sendStatus(204)
     }
     catch {
+        res.sendStatus(500)
+    }
+}
+
+export async function repost(req, res){
+    const {id} = req.params;
+    const {authorization} = req.headers;
+    const token = authorization.replace("bearer", "");
+    console.log(token)
+
+    try{
+        const {userId} = (await findSessionDB(token)).rows[0]
+    console.log(token)
+
+        if (!userId) return res.status(404).send('user is not logged')
+        
+        console.log(userId)
+        
+        await repostDB(id, userId)
+        console.log(id)
+        res.sendStatus(200)
+    }
+    catch{
         res.sendStatus(500)
     }
 }

@@ -153,3 +153,7 @@ console.log(`DELETE FROM posttrend WHERE ${qty} AND "postId"=${postId};`)
         return []
     }    
 }
+
+export async function repostDB (postId, userId){
+    return db.query (`INSERT INTO reposts ("postId", "userId") VALUES ($1, ${userId});`, [postId])
+}
